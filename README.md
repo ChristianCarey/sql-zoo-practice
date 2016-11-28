@@ -252,7 +252,7 @@ FROM casting JOIN actor ON actorid=actor.id
 WHERE ord = 1
 GROUP BY name
 HAVING COUNT(*) >= 30
-ORDER BY name 
+ORDER BY name
 
 15.
 SELECT title, COUNT(*) AS actors
@@ -264,9 +264,98 @@ ORDER BY COUNT(*) DESC, title
 16.
 SELECT name
 FROM actor JOIN casting ON actor.id=actorid JOIN movie ON movieid=movie.id
-WHERE movieid IN ( 
+WHERE movieid IN (
 SELECT movieid
 FROM casting JOIN actor ON actorid=actor.id
-WHERE name = 'Art Garfunkel' 
+WHERE name = 'Art Garfunkel'
 )
 AND name != 'Art Garfunkel'
+
+------------- SUM AND COUNT --------------------------
+
+1.
+SELECT SUM(population)
+FROM world
+
+2.
+SELECT DISTINCT(continent)
+FROM world
+
+3.
+SELECT SUM(gdp)
+FROM world
+WHERE continent = 'Africa'
+
+4.
+SELECT COUNT(*)
+FROM world
+WHERE area >= 1000000
+
+5.
+SELECT SUM(population)
+FROM world
+WHERE name IN ('France','Germany','Spain')
+
+6.
+SELECT continent, COUNT(*) AS num_countries
+FROM world
+GROUP BY continent
+
+7.
+SELECT continent, COUNT(*) AS num_alot_people
+FROM world
+WHERE population >= 10000000
+GROUP BY continent
+
+8.
+SELECT continent
+FROM world
+GROUP BY continent
+HAVING SUM(population) >= 100000000
+
+---------------- SELECT WITHIN SELECT --------------------
+1.
+SELECT name FROM world
+  WHERE population >
+     (SELECT population FROM world
+      WHERE name='Russia')
+
+2.
+SELECT name
+FROM world
+WHERE (gdp/population) > (SELECT (gdp/population) FROM world WHERE name = 'United Kingdom')
+AND continent = 'Europe'
+
+3.
+SELECT name, continent
+FROM world
+WHERE continent IN (SELECT continent FROM world WHERE name IN ('Argentina', 'Australia'))
+ORDER BY name
+
+4.
+SELECT name, population
+FROM world
+WHERE population > (SELECT population FROM world WHERE name ='Canada')
+AND population < (SELECT population FROM world WHERE name='Poland')
+
+5.
+SELECT name, CONCAT(ROUND( population/(SELECT population FROM world WHERE name = 'Germany')*100, 0), '%')
+FROM world
+WHERE continent = 'Europe'
+
+6.
+SELECT name
+FROM world
+WHERE gdp > ALL(SELECT gdp FROM world WHERE continent ='Europe' AND gdp > 0)
+
+7.
+SELECT continent, name, area FROM world x
+WHERE area >= ALL
+(SELECT area FROM world y
+  WHERE y.continent=x.continent
+  AND area>0)
+
+8.
+SELECT continent, MIN(name)
+FROM world
+GROUP BY continent
