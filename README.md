@@ -316,9 +316,9 @@ HAVING SUM(population) >= 100000000
 ---------------- SELECT WITHIN SELECT --------------------
 1.
 SELECT name FROM world
-  WHERE population >
-     (SELECT population FROM world
-      WHERE name='Russia')
+WHERE population >
+(SELECT population FROM world
+WHERE name='Russia')
 
 2.
 SELECT name
@@ -352,10 +352,88 @@ WHERE gdp > ALL(SELECT gdp FROM world WHERE continent ='Europe' AND gdp > 0)
 SELECT continent, name, area FROM world x
 WHERE area >= ALL
 (SELECT area FROM world y
-  WHERE y.continent=x.continent
-  AND area>0)
+WHERE y.continent=x.continent
+AND area>0)
 
 8.
 SELECT continent, MIN(name)
 FROM world
 GROUP BY continent
+
+9.
+SELECT name, continent, population
+FROM world x 
+WHERE 25000000 >= ALL ( 
+SELECT population 
+FROM world y
+WHERE x.continent = y.continent)
+
+10.
+SELECT name, continent
+FROM world x
+WHERE population > ALL(
+SELECT population * 3
+FROM world y
+WHERE y.continent = x.continent AND population > 0
+AND y.name != x.name)
+
+-------------------------------------- USING NULL --------------------------------------
+
+1.
+SELECT name
+FROM teacher
+WHERE dept IS NULL
+
+2.
+SELECT teacher.name, dept.name
+FROM teacher INNER JOIN dept
+ON (teacher.dept=dept.id)
+
+3.
+SELECT teacher.name, dept.name
+FROM teacher LEFT OUTER JOIN dept ON dept=dept.id
+
+4.
+SELECT teacher.name, dept.name
+FROM dept LEFT OUTER JOIN teacher ON dept.id=dept
+
+5.
+SELECT name, COALESCE(mobile, '07986 444 2266')
+FROM teacher
+
+6.
+SELECT teacher.name, COALESCE(dept.name, 'None')
+FROM teacher LEFT JOIN dept ON dept=dept.id
+
+7.
+SELECT COUNT(*) AS num_teachers, COUNT(mobile)
+FROM teacher
+
+8.
+SELECT dept.name, COUNT(teacher.dept) AS staff
+FROM teacher RIGHT JOIN dept ON dept=dept.id
+GROUP BY dept.name
+
+9.
+SELECT name,
+CASE WHEN dept IN(1,2) THEN 'Sci'
+ELSE 'Art' END
+FROM teacher
+
+10.
+SELECT name,
+CASE WHEN dept IN(1,2) THEN 'Sci'
+WHEN dept = 3 THEN 'Art'
+ELSE 'None' END
+FROM teacher
+
+--------------------------------------------SELF JOIN--------------------------------------------
+
+1.
+SELECT COUNT(*)
+FROM stops
+
+2.
+SELECT id
+FROM stops
+WHERE name='Craiglockhart'
