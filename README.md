@@ -149,77 +149,124 @@ GROUP BY matchid, mdate
 13.
 SELECT mdate, team1, SUM(score1) AS score1, team2, SUM(score2) AS score2
 FROM ( SELECT mdate, id,
-  team1,
-  CASE WHEN teamid=team1 THEN 1 ELSE 0 END AS score1,
-  team2,
-  CASE WHEN teamid=team2 THEN 1 ELSE 0 END AS score2
-  FROM game LEFT OUTER JOIN goal ON matchid = id
-  ) as score_table
-  GROUP BY id
-  ORDER BY mdate, id,team1, team2
+team1,
+CASE WHEN teamid=team1 THEN 1 ELSE 0 END AS score1,
+team2,
+CASE WHEN teamid=team2 THEN 1 ELSE 0 END AS score2
+FROM game LEFT OUTER JOIN goal ON matchid = id
+) as score_table
+GROUP BY id
+ORDER BY mdate, id,team1, team2
 
-  SELECT mdate, team1,
-  SUM(CASE WHEN teamid=team1 THEN 1 ELSE 0 END) AS score1,
-  team2,
-  SUM(CASE WHEN teamid=team2 THEN 1 ELSE 0 END) AS score2
-  FROM game LEFT OUTER JOIN goal ON matchid = id
-  GROUP BY team1, team2, mdate, matchid
+SELECT mdate, team1,
+SUM(CASE WHEN teamid=team1 THEN 1 ELSE 0 END) AS score1,
+team2,
+SUM(CASE WHEN teamid=team2 THEN 1 ELSE 0 END) AS score2
+FROM game LEFT OUTER JOIN goal ON matchid = id
+GROUP BY team1, team2, mdate, matchid
 
 
-  MORE JOIN OPERATIONS
+MORE JOIN OPERATIONS
+1.
+SELECT id, title
+FROM movie
+WHERE yr=1962
 
-  1.
-  SELECT id, title
-  FROM movie
-  WHERE yr=1962
+2.
+SELECT yr
+FROM movie
+WHERE title='Citizen Kane'
 
-  2.
-  SELECT yr
-  FROM movie
-  WHERE title='Citizen Kane'
+3.
+SELECT id, title, yr
+FROM movie
+WHERE title LIKE '%Star Trek%'
+ORDER BY yr
 
-  3.
-  SELECT id, title, yr
-  FROM movie
-  WHERE title LIKE '%Star Trek%'
-  ORDER BY yr
+4.
+SELECT title
+FROM movie
+WHERE id IN (11768, 11955, 21191)
 
-  4.
-  SELECT title
-  FROM movie
-  WHERE id IN (11768, 11955, 21191)
+5.
+SELECT id
+FROM actor
+WHERE name = 'Glenn Close'
 
-  5.
-  SELECT id
-  FROM actor
-  WHERE name = 'Glenn Close'
+6.
+SELECT id
+FROM movie
+WHERE title = 'Casablanca'
 
-  6.
-  SELECT id
-  FROM movie
-  WHERE title = 'Casablanca'
+7.
+SELECT name
+FROM movie JOIN casting ON movie.id = movieid
+JOIN actor ON actor.id = actorid
+WHERE movieid = 11768
 
-  7.
-  SELECT name
-  FROM movie JOIN casting ON movie.id = movieid
-  JOIN actor ON actor.id = actorid
-  WHERE movieid = 11768
+8.
+SELECT name
+FROM movie JOIN casting ON movie.id = movieid
+JOIN actor ON actor.id = actorid
+WHERE title = 'Alien'
 
-  8.
-  SELECT name
-  FROM movie JOIN casting ON movie.id = movieid
-  JOIN actor ON actor.id = actorid
-  WHERE title = 'Alien'
+9.
+SELECT title
+FROM movie JOIN casting ON movie.id = movieid
+JOIN actor ON actor.id = actorid
+WHERE name = 'Harrison Ford'
 
-  9.
-  SELECT title
-  FROM movie JOIN casting ON movie.id = movieid
-  JOIN actor ON actor.id = actorid
-  WHERE name = 'Harrison Ford'
+10.
+SELECT title
+FROM movie JOIN casting ON movie.id = movieid
+JOIN actor ON actor.id = actorid
+WHERE name = 'Harrison Ford'
+AND ord != 1
 
-  10.
-  SELECT title
-  FROM movie JOIN casting ON movie.id = movieid
-  JOIN actor ON actor.id = actorid
-  WHERE name = 'Harrison Ford'
-  AND ord != 1
+11.
+SELECT title, name
+FROM movie JOIN casting ON movie.id = movieid
+JOIN actor ON actor.id = actorid
+WHERE yr = 1962
+AND ord = 1
+
+12.
+SELECT yr,COUNT(title) FROM
+movie JOIN casting ON movie.id=movieid
+JOIN actor   ON actorid=actor.id
+WHERE name='John Travolta'
+GROUP BY yr
+HAVING COUNT(title) > 2
+
+13.
+SELECT title, name
+FROM movie JOIN casting ON movie.id=movieid JOIN actor ON actorid=actor.id
+WHERE movieid IN (
+SELECT movieid FROM casting JOIN actor ON actorid=actor.id
+WHERE name = 'Julie Andrews')
+AND ord = 1
+
+14.
+SELECT name
+FROM casting JOIN actor ON actorid=actor.id
+WHERE ord = 1
+GROUP BY name
+HAVING COUNT(*) >= 30
+ORDER BY name 
+
+15.
+SELECT title, COUNT(*) AS actors
+FROM movie JOIN casting ON movie.id=movieid
+WHERE yr = 1978
+GROUP BY movie.id, title
+ORDER BY COUNT(*) DESC, title
+
+16.
+SELECT name
+FROM actor JOIN casting ON actor.id=actorid JOIN movie ON movieid=movie.id
+WHERE movieid IN ( 
+SELECT movieid
+FROM casting JOIN actor ON actorid=actor.id
+WHERE name = 'Art Garfunkel' 
+)
+AND name != 'Art Garfunkel'
