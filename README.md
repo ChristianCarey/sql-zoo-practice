@@ -130,20 +130,20 @@ ORDER BY goals
 
 10.
 SELECT stadium, COUNT(*) AS goals
-  FROM game JOIN goal ON id=matchid
+FROM game JOIN goal ON id=matchid
 GROUP BY stadium
- ORDER BY goals
+ORDER BY goals
 
- 11.
- SELECT matchid, mdate, COUNT(*)
-  FROM game JOIN goal ON matchid = id
- WHERE (team1 = 'POL' OR team2 = 'POL')
+11.
+SELECT matchid, mdate, COUNT(*)
+FROM game JOIN goal ON matchid = id
+WHERE (team1 = 'POL' OR team2 = 'POL')
 GROUP BY matchid, mdate
 
 12.
 SELECT matchid, mdate, COUNT(*)
-  FROM game JOIN goal ON matchid = id
- WHERE (teamid = 'GER')
+FROM game JOIN goal ON matchid = id
+WHERE (teamid = 'GER')
 GROUP BY matchid, mdate
 
 13.
@@ -155,23 +155,71 @@ FROM ( SELECT mdate, id,
   CASE WHEN teamid=team2 THEN 1 ELSE 0 END AS score2
   FROM game LEFT OUTER JOIN goal ON matchid = id
   ) as score_table
-GROUP BY id
-ORDER BY mdate, id,team1, team2
+  GROUP BY id
+  ORDER BY mdate, id,team1, team2
 
-MORE JOIN OPERATIONS
+  SELECT mdate, team1,
+  SUM(CASE WHEN teamid=team1 THEN 1 ELSE 0 END) AS score1,
+  team2,
+  SUM(CASE WHEN teamid=team2 THEN 1 ELSE 0 END) AS score2
+  FROM game LEFT OUTER JOIN goal ON matchid = id
+  GROUP BY team1, team2, mdate, matchid
 
-1.
-SELECT id, title
- FROM movie
- WHERE yr=1962
 
- 2.
- SELECT yr
-FROM movie
-WHERE title='Citizen Kane'
+  MORE JOIN OPERATIONS
 
-3.
-SELECT id, title, yr
-FROM movie
-WHERE title LIKE '%Star Trek%'
-ORDER BY yr
+  1.
+  SELECT id, title
+  FROM movie
+  WHERE yr=1962
+
+  2.
+  SELECT yr
+  FROM movie
+  WHERE title='Citizen Kane'
+
+  3.
+  SELECT id, title, yr
+  FROM movie
+  WHERE title LIKE '%Star Trek%'
+  ORDER BY yr
+
+  4.
+  SELECT title
+  FROM movie
+  WHERE id IN (11768, 11955, 21191)
+
+  5.
+  SELECT id
+  FROM actor
+  WHERE name = 'Glenn Close'
+
+  6.
+  SELECT id
+  FROM movie
+  WHERE title = 'Casablanca'
+
+  7.
+  SELECT name
+  FROM movie JOIN casting ON movie.id = movieid
+  JOIN actor ON actor.id = actorid
+  WHERE movieid = 11768
+
+  8.
+  SELECT name
+  FROM movie JOIN casting ON movie.id = movieid
+  JOIN actor ON actor.id = actorid
+  WHERE title = 'Alien'
+
+  9.
+  SELECT title
+  FROM movie JOIN casting ON movie.id = movieid
+  JOIN actor ON actor.id = actorid
+  WHERE name = 'Harrison Ford'
+
+  10.
+  SELECT title
+  FROM movie JOIN casting ON movie.id = movieid
+  JOIN actor ON actor.id = actorid
+  WHERE name = 'Harrison Ford'
+  AND ord != 1
