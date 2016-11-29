@@ -362,9 +362,9 @@ GROUP BY continent
 
 9.
 SELECT name, continent, population
-FROM world x 
-WHERE 25000000 >= ALL ( 
-SELECT population 
+FROM world x
+WHERE 25000000 >= ALL (
+SELECT population
 FROM world y
 WHERE x.continent = y.continent)
 
@@ -437,3 +437,49 @@ FROM stops
 SELECT id
 FROM stops
 WHERE name='Craiglockhart'
+
+3.
+SELECT id, name
+FROM stops JOIN route ON stops.id = route.stop
+WHERE num = 4 AND company = 'LRT'
+
+4.
+SELECT company, num, COUNT(*)
+FROM route WHERE stop=149 OR stop=53
+GROUP BY company, num
+HAVING COUNT(*) = 2
+
+5.
+SELECT a.company, a.num, a.stop, b.stop
+FROM route a JOIN route b ON
+  (a.company=b.company AND a.num=b.num)
+WHERE a.stop=53 AND b.stop=(SELECT id FROM stops WHERE name = 'London Road')
+
+6.
+SELECT a.company, a.num, stopa.name, stopb.name
+FROM route a JOIN route b ON
+  (a.company=b.company AND a.num=b.num)
+  JOIN stops stopa ON (a.stop=stopa.id)
+  JOIN stops stopb ON (b.stop=stopb.id)
+WHERE stopa.name='Craiglockhart'
+AND stopb.name = 'London Road'
+
+7.
+SELECT a.company, a.num
+FROM route a JOIN route b on a.company = b.company AND a.num = b.num
+WHERE a.stop = 115 AND b.stop = 137
+GROUP BY a.company, a.num
+
+8.
+SELECT a.company, a.num
+FROM route a JOIN route b on a.company = b.company AND a.num = b.num
+                        JOIN stops stop_a ON a.stop = stop_a.id JOIN stops stop_b ON b.stop = stop_b.id
+WHERE stop_a.name = 'Craiglockhart' AND stop_b.name = 'Tollcross'
+GROUP BY a.company, a.num
+
+9.
+SELECT name, company, num
+FROM route JOIN stops ON route.stop = stops.id
+WHERE company = 'LRT'
+AND num IN (SELECT num FROM route JOIN stops ON stop = id WHERE name = 'Craiglockhart')
+GROUP BY name, company, num
