@@ -483,3 +483,18 @@ FROM route JOIN stops ON route.stop = stops.id
 WHERE company = 'LRT'
 AND num IN (SELECT num FROM route JOIN stops ON stop = id WHERE name = 'Craiglockhart')
 GROUP BY name, company, num
+
+10.
+SELECT table_a.num, table_a.company, table_a.transfer, table_b.num, table_b.company
+FROM(SELECT a.company, a.num, stop_b.name AS transfer
+FROM route a JOIN route b on a.company = b.company AND a.num = b.num
+                        JOIN stops stop_a ON a.stop = stop_a.id JOIN stops stop_b ON b.stop = stop_b.id
+WHERE stop_a.name = "Craiglockhart") table_a
+JOIN
+(SELECT a.company, a.num, stop_b.name AS transfer
+FROM route a JOIN route b on a.company = b.company AND a.num = b.num
+                        JOIN stops stop_a ON a.stop = stop_a.id JOIN stops stop_b ON b.stop = stop_b.id
+WHERE stop_a.name = "Sighthill") table_b
+ON table_a.transfer=table_b.transfer
+GROUP BY table_a.num, table_a.company, transfer, table_b.company, table_b.num
+
